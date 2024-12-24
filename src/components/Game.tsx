@@ -5,6 +5,7 @@ import { Pothole } from "@/components/Pothole";
 import { Score } from "@/components/Score";
 import { LevelComplete } from "@/components/LevelComplete";
 import { useToast } from "@/hooks/use-toast";
+import ReactConfetti from 'react-confetti';
 
 interface GameProps {
   onExit: () => void;
@@ -15,7 +16,7 @@ interface GameProps {
 export const Game = ({ onExit, level, onLevelComplete }: GameProps) => {
   const [score, setScore] = useState(0);
   const [potholes, setPotholes] = useState<{ id: number; x: number; y: number }[]>([]);
-  const [gameTime, setGameTime] = useState(60); // 60 seconds per level
+  const [gameTime, setGameTime] = useState(60);
   const [isComplete, setIsComplete] = useState(false);
   const { toast } = useToast();
 
@@ -27,7 +28,6 @@ export const Game = ({ onExit, level, onLevelComplete }: GameProps) => {
   };
 
   useEffect(() => {
-    // Generate potholes based on level difficulty
     const initialPotholes = Array.from({ length: difficulty.potholeCount }, (_, i) => ({
       id: i,
       x: Math.random() * 80 + 10,
@@ -37,7 +37,6 @@ export const Game = ({ onExit, level, onLevelComplete }: GameProps) => {
     setGameTime(difficulty.timeLimit);
   }, [level]);
 
-  // Timer countdown
   useEffect(() => {
     if (gameTime > 0 && !isComplete) {
       const timer = setInterval(() => {
@@ -57,7 +56,6 @@ export const Game = ({ onExit, level, onLevelComplete }: GameProps) => {
       description: "+100 points",
     });
 
-    // Check if level is complete
     if (potholes.length === 1) {
       handleLevelEnd();
     }
@@ -79,6 +77,8 @@ export const Game = ({ onExit, level, onLevelComplete }: GameProps) => {
 
   return (
     <div className="game-container">
+      {isComplete && <ReactConfetti recycle={false} numberOfPieces={200} />}
+      
       <Button 
         onClick={onExit}
         className="absolute top-4 right-4 z-10"
@@ -92,7 +92,6 @@ export const Game = ({ onExit, level, onLevelComplete }: GameProps) => {
         Time: {gameTime}s
       </div>
 
-      {/* Tutorial messages for first 4 levels */}
       {level <= 4 && (
         <div className="absolute top-20 left-4 right-4 text-center bg-black/80 text-white p-4 rounded-lg">
           {level === 1 && "Click on potholes to repair them!"}
@@ -102,12 +101,10 @@ export const Game = ({ onExit, level, onLevelComplete }: GameProps) => {
         </div>
       )}
       
-      {/* Cars going in opposite directions */}
       <Car emoji="🚗" lane={1} speed={difficulty.carSpeed} direction="right" />
       <Car emoji="🚙" lane={2} speed={difficulty.carSpeed} direction="left" />
       <Car emoji="🚐" lane={3} speed={difficulty.carSpeed} direction="right" />
 
-      {/* Potholes */}
       {potholes.map(pothole => (
         <Pothole
           key={pothole.id}

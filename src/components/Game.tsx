@@ -4,6 +4,8 @@ import { Car } from "@/components/Car";
 import { Pothole } from "@/components/Pothole";
 import { Score } from "@/components/Score";
 import { LevelComplete } from "@/components/LevelComplete";
+import { TutorialMessage } from "@/components/TutorialMessage";
+import { calculateDifficulty, calculateStars } from "@/utils/gameDifficulty";
 import { useToast } from "@/hooks/use-toast";
 import ReactConfetti from 'react-confetti';
 
@@ -20,12 +22,7 @@ export const Game = ({ onExit, level, onLevelComplete }: GameProps) => {
   const [isComplete, setIsComplete] = useState(false);
   const { toast } = useToast();
 
-  // Calculate difficulty based on level
-  const difficulty = {
-    potholeCount: Math.min(5 + Math.floor(level / 2), 15),
-    carSpeed: Math.min(3 + level * 0.5, 8),
-    timeLimit: Math.max(60 - level * 2, 30),
-  };
+  const difficulty = calculateDifficulty(level);
 
   useEffect(() => {
     const initialPotholes = Array.from({ length: difficulty.potholeCount }, (_, i) => ({
@@ -49,30 +46,25 @@ export const Game = ({ onExit, level, onLevelComplete }: GameProps) => {
   }, [gameTime, isComplete]);
 
   const handlePotholeClick = (id: number) => {
-    setPotholes(current => current.filter(p => p.id !== id));
+    setPotholes(current => {
+      const newPotholes = current.filter(p => p.id !== id);
+      if (newPotholes.length === 0) {
+        handleLevelEnd();
+      }
+      return newPotholes;
+    });
+    
     setScore(s => s + 100);
     toast({
       title: "Pothole Fixed!",
       description: "+100 points",
     });
-
-    if (potholes.length === 1) {
-      handleLevelEnd();
-    }
   };
 
   const handleLevelEnd = () => {
     setIsComplete(true);
-    const stars = calculateStars();
+    const stars = calculateStars(score, difficulty.potholeCount);
     onLevelComplete(stars, score);
-  };
-
-  const calculateStars = () => {
-    const maxScore = difficulty.potholeCount * 100;
-    const percentage = (score / maxScore) * 100;
-    if (percentage >= 90) return 3;
-    if (percentage >= 70) return 2;
-    return 1;
   };
 
   return (
@@ -92,14 +84,7 @@ export const Game = ({ onExit, level, onLevelComplete }: GameProps) => {
         Time: {gameTime}s
       </div>
 
-      {level <= 4 && (
-        <div className="absolute top-20 left-4 right-4 text-center bg-black/80 text-white p-4 rounded-lg">
-          {level === 1 && "Click on potholes to repair them!"}
-          {level === 2 && "Watch out for cars - they're getting faster!"}
-          {level === 3 && "Time is limited - fix potholes quickly!"}
-          {level === 4 && "More potholes appear in higher levels!"}
-        </div>
-      )}
+      <TutorialMessage level={level} />
       
       <Car emoji="🚗" lane={1} speed={difficulty.carSpeed} direction="right" />
       <Car emoji="🚙" lane={2} speed={difficulty.carSpeed} direction="left" />
@@ -118,13 +103,9 @@ export const Game = ({ onExit, level, onLevelComplete }: GameProps) => {
         <LevelComplete
           level={level}
           score={score}
-          stars={calculateStars()}
-          onNextLevel={() => {
-            onLevelComplete(calculateStars(), score);
-          }}
-          onRetry={() => {
-            window.location.reload();
-          }}
+          stars={calculateStars(score, difficulty.potholeCount)}
+          onNextLevel={() => onLevelComplete(calculateStars(score, difficulty.potholeCount), score)}
+          onRetry={() => window.location.reload()}
         />
       )}
     </div>

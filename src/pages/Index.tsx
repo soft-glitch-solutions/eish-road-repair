@@ -37,7 +37,13 @@ const Index = () => {
       {showLevelSelector && (
         <div className="max-w-4xl mx-auto">
           <h2 className="text-4xl mb-8 text-center">Select Level</h2>
-          <LevelSelector onLevelSelect={handleLevelSelect} />
+          <LevelSelector 
+            onLevelSelect={handleLevelSelect}
+            currentLevel={currentLevel}
+            levelStars={Object.fromEntries(
+              Object.entries(levelProgress).map(([level, data]) => [level, data.stars])
+            )}
+          />
         </div>
       )}
 

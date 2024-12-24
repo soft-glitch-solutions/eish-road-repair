@@ -32,7 +32,7 @@ export const Game = ({ onExit, level, onLevelComplete }: GameProps) => {
     }));
     setPotholes(initialPotholes);
     setGameTime(difficulty.timeLimit);
-  }, [level]);
+  }, [level, difficulty.potholeCount, difficulty.timeLimit]);
 
   useEffect(() => {
     if (gameTime > 0 && !isComplete) {
@@ -49,12 +49,14 @@ export const Game = ({ onExit, level, onLevelComplete }: GameProps) => {
     setPotholes(current => {
       const newPotholes = current.filter(p => p.id !== id);
       if (newPotholes.length === 0) {
-        handleLevelEnd();
+        setTimeout(() => {
+          handleLevelEnd();
+        }, 0);
       }
       return newPotholes;
     });
     
-    setScore(s => s + 100);
+    setScore(prev => prev + 100);
     toast({
       title: "Pothole Fixed!",
       description: "+100 points",
@@ -63,6 +65,15 @@ export const Game = ({ onExit, level, onLevelComplete }: GameProps) => {
 
   const handleLevelEnd = () => {
     setIsComplete(true);
+    const stars = calculateStars(score, difficulty.potholeCount);
+    toast({
+      title: "Level Complete!",
+      description: `You earned ${stars} stars!`,
+      duration: 3000,
+    });
+  };
+
+  const handleNextLevel = () => {
     const stars = calculateStars(score, difficulty.potholeCount);
     onLevelComplete(stars, score);
   };
@@ -104,7 +115,7 @@ export const Game = ({ onExit, level, onLevelComplete }: GameProps) => {
           level={level}
           score={score}
           stars={calculateStars(score, difficulty.potholeCount)}
-          onNextLevel={() => onLevelComplete(calculateStars(score, difficulty.potholeCount), score)}
+          onNextLevel={handleNextLevel}
           onRetry={() => window.location.reload()}
         />
       )}

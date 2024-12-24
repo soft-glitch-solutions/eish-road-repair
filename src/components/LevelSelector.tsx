@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Star, Lock } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from './ui/button';
@@ -36,9 +36,22 @@ const LevelButton = ({ level, stars, isLocked, onSelect }: LevelProps) => {
   );
 };
 
-export const LevelSelector = ({ onLevelSelect }: { onLevelSelect: (level: number) => void }) => {
-  const [unlockedLevels, setUnlockedLevels] = useState(1);
-  const [levelStars, setLevelStars] = useState<Record<number, number>>({});
+interface LevelSelectorProps {
+  onLevelSelect: (level: number) => void;
+  currentLevel?: number;
+  levelStars?: Record<number, number>;
+}
+
+export const LevelSelector = ({ 
+  onLevelSelect,
+  currentLevel = 1,
+  levelStars = {}
+}: LevelSelectorProps) => {
+  const [unlockedLevels, setUnlockedLevels] = useState(currentLevel);
+
+  useEffect(() => {
+    setUnlockedLevels(currentLevel);
+  }, [currentLevel]);
 
   return (
     <motion.div 

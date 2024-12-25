@@ -5,6 +5,7 @@ import { Pothole } from "@/components/Pothole";
 import { Score } from "@/components/Score";
 import { LevelComplete } from "@/components/LevelComplete";
 import { TutorialMessage } from "@/components/TutorialMessage";
+import { RepairTools } from "@/components/RepairTools";
 import { calculateDifficulty, calculateStars } from "@/utils/gameDifficulty";
 import { useToast } from "@/hooks/use-toast";
 import ReactConfetti from 'react-confetti';
@@ -15,11 +16,19 @@ interface GameProps {
   onLevelComplete: (stars: number, score: number) => void;
 }
 
+interface PotholeState {
+  id: number;
+  x: number;
+  y: number;
+  repairStage: 'unrepaired' | 'cracked' | 'cleaned' | 'repaired';
+}
+
 export const Game = ({ onExit, level, onLevelComplete }: GameProps) => {
   const [score, setScore] = useState(0);
-  const [potholes, setPotholes] = useState<{ id: number; x: number; y: number }[]>([]);
+  const [potholes, setPotholes] = useState<PotholeState[]>([]);
   const [gameTime, setGameTime] = useState(60);
   const [isComplete, setIsComplete] = useState(false);
+  const [isRepairing, setIsRepairing] = useState(false);
   const { toast } = useToast();
 
   const difficulty = calculateDifficulty(level);
@@ -29,6 +38,7 @@ export const Game = ({ onExit, level, onLevelComplete }: GameProps) => {
       id: i,
       x: Math.random() * 80 + 10,
       y: Math.random() * 80 + 10,
+      repairStage: 'unrepaired' as const,
     }));
     setPotholes(initialPotholes);
     setGameTime(difficulty.timeLimit);
@@ -45,22 +55,64 @@ export const Game = ({ onExit, level, onLevelComplete }: GameProps) => {
     }
   }, [gameTime, isComplete]);
 
-  const handlePotholeClick = (id: number) => {
+  const handleToolSelect = async (potholeId: number, tool: string) => {
+    if (isRepairing) return;
+
+    setIsRepairing(true);
+    const pothole = potholes.find(p => p.id === potholeId);
+    if (!pothole) return;
+
+    const toolStages = {
+      hammer: 'cracked',
+      shovel: 'cleaned',
+      tar: 'repaired'
+    };
+
+    const stageOrder = ['unrepaired', 'cracked', 'cleaned', 'repaired'];
+    const currentStageIndex = stageOrder.indexOf(pothole.repairStage);
+    const expectedTool = Object.keys(toolStages)[currentStageIndex];
+
+    if (tool !== expectedTool) {
+      toast({
+        title: "Wrong tool!",
+        description: `You need to ${expectedTool} first`,
+        variant: "destructive"
+      });
+      setIsRepairing(false);
+      return;
+    }
+
+    // Simulate repair time
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
     setPotholes(current => {
-      const newPotholes = current.filter(p => p.id !== id);
-      if (newPotholes.length === 0) {
+      const newPotholes = current.map(p => {
+        if (p.id === potholeId) {
+          return {
+            ...p,
+            repairStage: toolStages[tool as keyof typeof toolStages] as PotholeState['repairStage']
+          };
+        }
+        return p;
+      });
+
+      const allRepaired = newPotholes.every(p => p.repairStage === 'repaired');
+      if (allRepaired) {
         setTimeout(() => {
           handleLevelEnd();
         }, 0);
       }
+
       return newPotholes;
     });
-    
+
     setScore(prev => prev + 100);
     toast({
-      title: "Pothole Fixed!",
+      title: "Progress!",
       description: "+100 points",
     });
+
+    setIsRepairing(false);
   };
 
   const handleLevelEnd = () => {
@@ -97,6 +149,16 @@ export const Game = ({ onExit, level, onLevelComplete }: GameProps) => {
 
       <TutorialMessage level={level} />
       
+      <RepairTools 
+        onToolSelect={(tool) => {
+          const unfinishedPothole = potholes.find(p => p.repairStage !== 'repaired');
+          if (unfinishedPothole) {
+            handleToolSelect(unfinishedPothole.id, tool);
+          }
+        }}
+        disabled={isRepairing || isComplete}
+      />
+
       <Car emoji="🚗" lane={1} speed={difficulty.carSpeed} direction="right" />
       <Car emoji="🚙" lane={2} speed={difficulty.carSpeed} direction="left" />
       <Car emoji="🚐" lane={3} speed={difficulty.carSpeed} direction="right" />
@@ -106,7 +168,19 @@ export const Game = ({ onExit, level, onLevelComplete }: GameProps) => {
           key={pothole.id}
           x={pothole.x}
           y={pothole.y}
-          onClick={() => handlePotholeClick(pothole.id)}
+          repairStage={pothole.repairStage}
+          onClick={() => {
+            if (!isRepairing && pothole.repairStage !== 'repaired') {
+              const nextTool = {
+                unrepaired: 'hammer',
+                cracked: 'shovel',
+                cleaned: 'tar'
+              }[pothole.repairStage];
+              if (nextTool) {
+                handleToolSelect(pothole.id, nextTool);
+              }
+            }
+          }}
         />
       ))}
 

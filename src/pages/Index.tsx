@@ -26,6 +26,11 @@ const Index = () => {
     setGameStarted(true);
   };
 
+  const handleBackToMenu = () => {
+    setShowLevelSelector(false);
+    setGameStarted(false);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-yellow-300 to-yellow-500 p-4">
       {!gameStarted && !showLevelSelector && (
@@ -43,6 +48,7 @@ const Index = () => {
             levelStars={Object.fromEntries(
               Object.entries(levelProgress).map(([level, data]) => [level, data.stars])
             )}
+            onBackToMenu={handleBackToMenu}
           />
         </div>
       )}

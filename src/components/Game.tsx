@@ -6,6 +6,7 @@ import { Score } from "@/components/Score";
 import { LevelComplete } from "@/components/LevelComplete";
 import { TutorialMessage } from "@/components/TutorialMessage";
 import { RepairTools } from "@/components/RepairTools";
+import { RepairProgress } from "@/components/RepairProgress";
 import { calculateDifficulty, calculateStars } from "@/utils/gameDifficulty";
 import { useToast } from "@/hooks/use-toast";
 import ReactConfetti from 'react-confetti';
@@ -130,6 +131,8 @@ export const Game = ({ onExit, level, onLevelComplete }: GameProps) => {
     onLevelComplete(stars, score);
   };
 
+  const repairedCount = potholes.filter(p => p.repairStage === 'repaired').length;
+
   return (
     <div className="game-container">
       {isComplete && <ReactConfetti recycle={false} numberOfPieces={200} />}
@@ -149,6 +152,11 @@ export const Game = ({ onExit, level, onLevelComplete }: GameProps) => {
 
       <TutorialMessage level={level} />
       
+      <RepairProgress 
+        totalPotholes={potholes.length}
+        repairedCount={repairedCount}
+      />
+
       <RepairTools 
         onToolSelect={(tool) => {
           const unfinishedPothole = potholes.find(p => p.repairStage !== 'repaired');

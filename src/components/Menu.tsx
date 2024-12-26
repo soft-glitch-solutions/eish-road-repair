@@ -31,15 +31,15 @@ const GameSettings = () => (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <span>Sound Effects</span>
-        <input type="checkbox" className="toggle" />
+        <input type="checkbox" defaultChecked className="toggle" />
       </div>
       <div className="flex items-center justify-between">
         <span>Music</span>
-        <input type="checkbox" className="toggle" />
+        <input type="checkbox" defaultChecked className="toggle" />
       </div>
       <div className="flex items-center justify-between">
         <span>Difficulty</span>
-        <select className="select select-bordered">
+        <select className="select select-bordered w-32">
           <option>Easy</option>
           <option>Medium</option>
           <option>Hard</option>
@@ -109,11 +109,13 @@ export const Menu = ({ onStartGame }: MenuProps) => {
                   High Scores
                 </Button>
               </SheetTrigger>
-              <SheetContent>
+              <SheetContent side="right">
                 <SheetHeader>
                   <SheetTitle>High Scores</SheetTitle>
                 </SheetHeader>
-                <HighScores />
+                <div className="mt-4">
+                  <HighScores />
+                </div>
               </SheetContent>
             </Sheet>
 
@@ -124,11 +126,13 @@ export const Menu = ({ onStartGame }: MenuProps) => {
                   Settings
                 </Button>
               </SheetTrigger>
-              <SheetContent>
+              <SheetContent side="right">
                 <SheetHeader>
                   <SheetTitle>Settings</SheetTitle>
                 </SheetHeader>
-                <GameSettings />
+                <div className="mt-4">
+                  <GameSettings />
+                </div>
               </SheetContent>
             </Sheet>
 
@@ -139,11 +143,13 @@ export const Menu = ({ onStartGame }: MenuProps) => {
                   How to Play
                 </Button>
               </SheetTrigger>
-              <SheetContent>
+              <SheetContent side="right">
                 <SheetHeader>
                   <SheetTitle>How to Play</SheetTitle>
                 </SheetHeader>
-                <HowToPlay />
+                <div className="mt-4">
+                  <HowToPlay />
+                </div>
               </SheetContent>
             </Sheet>
           </div>

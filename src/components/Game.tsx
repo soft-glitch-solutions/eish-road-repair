@@ -10,6 +10,8 @@ import { RepairProgress } from "@/components/RepairProgress";
 import { calculateDifficulty, calculateStars } from "@/utils/gameDifficulty";
 import { useToast } from "@/hooks/use-toast";
 import ReactConfetti from 'react-confetti';
+import { RoadBackground } from "@/components/RoadBackground";
+import { motion } from "framer-motion";
 
 interface GameProps {
   onExit: () => void;
@@ -137,6 +139,8 @@ export const Game = ({ onExit, level, onLevelComplete }: GameProps) => {
     <div className="game-container">
       {isComplete && <ReactConfetti recycle={false} numberOfPieces={200} />}
       
+      <RoadBackground />
+      
       <Button 
         onClick={onExit}
         className="absolute top-4 right-4 z-10"
@@ -166,10 +170,6 @@ export const Game = ({ onExit, level, onLevelComplete }: GameProps) => {
         }}
         disabled={isRepairing || isComplete}
       />
-
-      <Car emoji="🚗" lane={1} speed={difficulty.carSpeed} direction="right" />
-      <Car emoji="🚙" lane={2} speed={difficulty.carSpeed} direction="left" />
-      <Car emoji="🚐" lane={3} speed={difficulty.carSpeed} direction="right" />
 
       {potholes.map(pothole => (
         <Pothole

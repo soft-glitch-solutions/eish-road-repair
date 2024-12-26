@@ -40,7 +40,7 @@
 
 @layer components {
   .game-container {
-    @apply relative w-full max-w-4xl mx-auto h-[600px] bg-secondary rounded-lg overflow-hidden;
+    @apply relative w-full h-[90vh] bg-secondary rounded-lg overflow-hidden;
   }
 
   .car {
@@ -49,7 +49,8 @@
   }
 
   .pothole {
-    @apply absolute w-12 h-12 bg-black rounded-full transform transition-all duration-300;
+    @apply absolute w-12 h-12 bg-black rounded-full transform transition-all duration-300 hover:scale-110;
+    animation: appear 0.3s ease-out;
   }
 
   .road {
@@ -63,5 +64,16 @@
   }
   to {
     transform: translateX(100vw);
+  }
+}
+
+@keyframes appear {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
   }
 }

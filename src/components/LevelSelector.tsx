@@ -10,17 +10,23 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 
+interface CityTheme {
+  name: string;
+  image: string;
+  color: string;
+}
+
 interface LevelProps {
   level: number;
   stars: number;
   isLocked: boolean;
   onSelect: (level: number) => void;
-  cityTheme: string;
+  cityTheme: CityTheme;
 }
 
-const getCityTheme = (level: number) => {
+const getCityTheme = (level: number): CityTheme => {
   const cityIndex = Math.floor((level - 1) / 12);
-  const cities = [
+  const cities: CityTheme[] = [
     {
       name: 'Cape Town',
       image: 'https://images.unsplash.com/photo-1487958449943-2429e8be8625',

@@ -20,17 +20,31 @@ interface LevelProps {
 
 const getCityTheme = (level: number) => {
   const cityIndex = Math.floor((level - 1) / 12);
-  const cities = ['Cape Town', 'Johannesburg'];
+  const cities = [
+    {
+      name: 'Cape Town',
+      image: 'https://images.unsplash.com/photo-1487958449943-2429e8be8625',
+      color: 'bg-[#9b87f5]'
+    },
+    {
+      name: 'Johannesburg',
+      image: 'https://images.unsplash.com/photo-1488972685288-c3fd157d7c7a',
+      color: 'bg-[#7E69AB]'
+    },
+    {
+      name: 'Durban',
+      image: 'https://images.unsplash.com/photo-1496307653780-42ee777d4833',
+      color: 'bg-[#6B4E71]'
+    }
+  ];
   return cities[cityIndex] || cities[cities.length - 1];
 };
 
 const LevelButton = ({ level, stars, isLocked, onSelect, cityTheme }: LevelProps) => {
-  const bgColor = cityTheme === 'Cape Town' ? 'bg-[#9b87f5]' : 'bg-[#7E69AB]';
-  
   return (
     <Button
       onClick={() => !isLocked && onSelect(level)}
-      className={`w-24 h-24 relative ${isLocked ? 'bg-gray-400' : bgColor}`}
+      className={`w-24 h-24 relative ${isLocked ? 'bg-gray-400' : cityTheme.color} transition-all duration-300 hover:scale-105`}
       disabled={isLocked}
     >
       {isLocked ? (
@@ -76,9 +90,7 @@ export const LevelSelector = ({
   }, [currentLevel]);
 
   const backgroundStyle = {
-    backgroundImage: cityTheme === 'Cape Town' 
-      ? 'url(https://images.unsplash.com/photo-1487958449943-2429e8be8625)'
-      : 'url(https://images.unsplash.com/photo-1488972685288-c3fd157d7c7a)',
+    backgroundImage: `url(${cityTheme.image})`,
     backgroundSize: 'cover',
     backgroundPosition: 'center',
   };
@@ -94,7 +106,7 @@ export const LevelSelector = ({
           <ArrowLeft className="w-4 h-4" />
           Back to Menu
         </Button>
-        <h2 className="text-3xl font-bold">{cityTheme}</h2>
+        <h2 className="text-3xl font-bold">{cityTheme.name}</h2>
       </div>
 
       <motion.div 

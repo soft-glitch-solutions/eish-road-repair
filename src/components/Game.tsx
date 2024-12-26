@@ -141,17 +141,22 @@ export const Game = ({ onExit, level, onLevelComplete }: GameProps) => {
       
       <RoadBackground />
       
-      <Button 
-        onClick={onExit}
-        className="absolute top-4 right-4 z-10"
-      >
-        Exit Game
-      </Button>
-      
-      <Score score={score} />
-      
-      <div className="absolute top-4 left-32 bg-primary text-black px-4 py-2 rounded-lg">
-        Time: {gameTime}s
+      <div className="absolute top-4 left-4 right-4 flex justify-between items-center z-10">
+        <div className="flex gap-4">
+          <div className="bg-primary text-black px-4 py-2 rounded-lg">
+            Score: {score}
+          </div>
+          <div className="bg-primary text-black px-4 py-2 rounded-lg">
+            Time: {gameTime}s
+          </div>
+        </div>
+        <Button 
+          onClick={onExit}
+          variant="secondary"
+          className="hover:bg-red-500 hover:text-white transition-colors"
+        >
+          Exit Game
+        </Button>
       </div>
 
       <TutorialMessage level={level} />
@@ -161,35 +166,43 @@ export const Game = ({ onExit, level, onLevelComplete }: GameProps) => {
         repairedCount={repairedCount}
       />
 
-      <RepairTools 
-        onToolSelect={(tool) => {
-          const unfinishedPothole = potholes.find(p => p.repairStage !== 'repaired');
-          if (unfinishedPothole) {
-            handleToolSelect(unfinishedPothole.id, tool);
-          }
-        }}
-        disabled={isRepairing || isComplete}
-      />
-
-      {potholes.map(pothole => (
-        <Pothole
-          key={pothole.id}
-          x={pothole.x}
-          y={pothole.y}
-          repairStage={pothole.repairStage}
-          onClick={() => {
-            if (!isRepairing && pothole.repairStage !== 'repaired') {
-              const nextTool = {
-                unrepaired: 'hammer',
-                cracked: 'shovel',
-                cleaned: 'tar'
-              }[pothole.repairStage];
-              if (nextTool) {
-                handleToolSelect(pothole.id, nextTool);
-              }
+      <div className="absolute bottom-4 left-4 right-4">
+        <RepairTools 
+          onToolSelect={(tool) => {
+            const unfinishedPothole = potholes.find(p => p.repairStage !== 'repaired');
+            if (unfinishedPothole) {
+              handleToolSelect(unfinishedPothole.id, tool);
             }
           }}
+          disabled={isRepairing || isComplete}
         />
+      </div>
+
+      {potholes.map(pothole => (
+        <motion.div
+          key={pothole.id}
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ type: "spring", stiffness: 260, damping: 20 }}
+        >
+          <Pothole
+            x={pothole.x}
+            y={pothole.y}
+            repairStage={pothole.repairStage}
+            onClick={() => {
+              if (!isRepairing && pothole.repairStage !== 'repaired') {
+                const nextTool = {
+                  unrepaired: 'hammer',
+                  cracked: 'shovel',
+                  cleaned: 'tar'
+                }[pothole.repairStage];
+                if (nextTool) {
+                  handleToolSelect(pothole.id, nextTool);
+                }
+              }
+            }}
+          />
+        </motion.div>
       ))}
 
       {isComplete && (

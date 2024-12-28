@@ -38,6 +38,8 @@ const Index = () => {
     setGameStarted(false);
   };
 
+  console.log('Current game state:', { gameStarted, showLevelSelector, currentLevel });
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-yellow-300 to-yellow-500 p-4">
       {!gameStarted && !showLevelSelector && (

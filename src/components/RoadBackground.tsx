@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { Car } from "@/components/Car";
 
 interface RoadBackgroundProps {
   city?: "cape-town" | "johannesburg" | "durban";

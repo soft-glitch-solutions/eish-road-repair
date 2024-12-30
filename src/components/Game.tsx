@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import ReactConfetti from 'react-confetti';
 import { RoadBackground } from "@/components/RoadBackground";
 import { motion } from "framer-motion";
+import { X, Pause, Play } from 'lucide-react';
 
 interface GameProps {
   onExit: () => void;
@@ -32,6 +33,8 @@ export const Game = ({ onExit, level, onLevelComplete }: GameProps) => {
   const [gameTime, setGameTime] = useState(60);
   const [isComplete, setIsComplete] = useState(false);
   const [isRepairing, setIsRepairing] = useState(false);
+  const [selectedTool, setSelectedTool] = useState<string | null>(null);
+  const [isPaused, setIsPaused] = useState(false);
   const { toast } = useToast();
 
   const difficulty = calculateDifficulty(level);
@@ -48,7 +51,7 @@ export const Game = ({ onExit, level, onLevelComplete }: GameProps) => {
   }, [level, difficulty.potholeCount, difficulty.timeLimit]);
 
   useEffect(() => {
-    if (gameTime > 0 && !isComplete) {
+    if (gameTime > 0 && !isComplete && !isPaused) {
       const timer = setInterval(() => {
         setGameTime(prev => prev - 1);
       }, 1000);
@@ -56,12 +59,15 @@ export const Game = ({ onExit, level, onLevelComplete }: GameProps) => {
     } else if (gameTime === 0 && !isComplete) {
       handleLevelEnd();
     }
-  }, [gameTime, isComplete]);
+  }, [gameTime, isComplete, isPaused]);
 
-  const handleToolSelect = async (potholeId: number, tool: string) => {
-    if (isRepairing) return;
+  const handleToolSelect = (toolId: string) => {
+    setSelectedTool(toolId);
+  };
 
-    setIsRepairing(true);
+  const handlePotholeClick = async (potholeId: number) => {
+    if (!selectedTool || isRepairing || isPaused) return;
+
     const pothole = potholes.find(p => p.id === potholeId);
     if (!pothole) return;
 
@@ -75,17 +81,16 @@ export const Game = ({ onExit, level, onLevelComplete }: GameProps) => {
     const currentStageIndex = stageOrder.indexOf(pothole.repairStage);
     const expectedTool = Object.keys(toolStages)[currentStageIndex];
 
-    if (tool !== expectedTool) {
+    if (selectedTool !== expectedTool) {
       toast({
         title: "Wrong tool!",
         description: `You need to ${expectedTool} first`,
         variant: "destructive"
       });
-      setIsRepairing(false);
       return;
     }
 
-    // Simulate repair time
+    setIsRepairing(true);
     await new Promise(resolve => setTimeout(resolve, 2000));
 
     setPotholes(current => {
@@ -93,7 +98,7 @@ export const Game = ({ onExit, level, onLevelComplete }: GameProps) => {
         if (p.id === potholeId) {
           return {
             ...p,
-            repairStage: toolStages[tool as keyof typeof toolStages] as PotholeState['repairStage']
+            repairStage: toolStages[selectedTool as keyof typeof toolStages] as PotholeState['repairStage']
           };
         }
         return p;
@@ -116,6 +121,7 @@ export const Game = ({ onExit, level, onLevelComplete }: GameProps) => {
     });
 
     setIsRepairing(false);
+    setSelectedTool(null);
   };
 
   const handleLevelEnd = () => {
@@ -156,13 +162,24 @@ export const Game = ({ onExit, level, onLevelComplete }: GameProps) => {
             Time: {gameTime}s
           </div>
         </div>
-        <Button 
-          onClick={onExit}
-          variant="secondary"
-          className="hover:bg-red-500 hover:text-white transition-colors"
-        >
-          Exit Game
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            onClick={() => setIsPaused(!isPaused)}
+            variant="secondary"
+            size="icon"
+            className="hover:bg-gray-200"
+          >
+            {isPaused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
+          </Button>
+          <Button 
+            onClick={onExit}
+            variant="secondary"
+            size="icon"
+            className="hover:bg-red-500 hover:text-white"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
 
       <TutorialMessage level={level} />
@@ -171,18 +188,6 @@ export const Game = ({ onExit, level, onLevelComplete }: GameProps) => {
         totalPotholes={potholes.length}
         repairedCount={repairedCount}
       />
-
-      <div className="absolute bottom-4 left-4 right-4">
-        <RepairTools 
-          onToolSelect={(tool) => {
-            const unfinishedPothole = potholes.find(p => p.repairStage !== 'repaired');
-            if (unfinishedPothole) {
-              handleToolSelect(unfinishedPothole.id, tool);
-            }
-          }}
-          disabled={isRepairing || isComplete}
-        />
-      </div>
 
       {potholes.map(pothole => (
         <motion.div
@@ -195,21 +200,18 @@ export const Game = ({ onExit, level, onLevelComplete }: GameProps) => {
             x={pothole.x}
             y={pothole.y}
             repairStage={pothole.repairStage}
-            onClick={() => {
-              if (!isRepairing && pothole.repairStage !== 'repaired') {
-                const nextTool = {
-                  unrepaired: 'hammer',
-                  cracked: 'shovel',
-                  cleaned: 'tar'
-                }[pothole.repairStage];
-                if (nextTool) {
-                  handleToolSelect(pothole.id, nextTool);
-                }
-              }
-            }}
+            onClick={() => handlePotholeClick(pothole.id)}
           />
         </motion.div>
       ))}
+
+      <div className="absolute bottom-4 left-4 right-4">
+        <RepairTools 
+          onToolSelect={handleToolSelect}
+          disabled={isRepairing || isComplete || isPaused}
+          selectedTool={selectedTool}
+        />
+      </div>
 
       {isComplete && (
         <LevelComplete

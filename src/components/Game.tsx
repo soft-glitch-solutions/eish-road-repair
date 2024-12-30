@@ -135,11 +135,17 @@ export const Game = ({ onExit, level, onLevelComplete }: GameProps) => {
 
   const repairedCount = potholes.filter(p => p.repairStage === 'repaired').length;
 
+  const getCity = () => {
+    if (level <= 12) return "cape-town";
+    if (level <= 24) return "johannesburg";
+    return "durban";
+  };
+
   return (
     <div className="game-container">
       {isComplete && <ReactConfetti recycle={false} numberOfPieces={200} />}
       
-      <RoadBackground />
+      <RoadBackground city={getCity()} />
       
       <div className="absolute top-4 left-4 right-4 flex justify-between items-center z-10">
         <div className="flex gap-4">

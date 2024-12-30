@@ -29,17 +29,17 @@ const getCityTheme = (level: number): CityTheme => {
   const cities: CityTheme[] = [
     {
       name: 'Cape Town',
-      image: 'https://images.unsplash.com/photo-1487958449943-2429e8be8625',
+      image: '/lovable-uploads/1bb7e077-b56d-44f3-b6f7-649116701e55.png',
       color: 'bg-[#9b87f5]'
     },
     {
       name: 'Johannesburg',
-      image: 'https://images.unsplash.com/photo-1488972685288-c3fd157d7c7a',
+      image: '/lovable-uploads/9ce51d91-7f8b-4184-9c4c-a836dbe0e1b4.png',
       color: 'bg-[#7E69AB]'
     },
     {
       name: 'Durban',
-      image: 'https://images.unsplash.com/photo-1496307653780-42ee777d4833',
+      image: '/lovable-uploads/6bf7f1e0-1afc-437c-b555-104249c9609b.png',
       color: 'bg-[#6B4E71]'
     }
   ];
@@ -95,12 +95,6 @@ export const LevelSelector = ({
     setUnlockedLevels(currentLevel);
   }, [currentLevel]);
 
-  const backgroundStyle = {
-    backgroundImage: `url(${cityTheme.image})`,
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
-  };
-
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center mb-8">
@@ -116,8 +110,8 @@ export const LevelSelector = ({
       </div>
 
       <motion.div 
-        className="grid grid-cols-3 gap-4 p-8 rounded-xl"
-        style={backgroundStyle}
+        className="grid grid-cols-3 gap-4 p-8 rounded-xl bg-cover bg-center"
+        style={{ backgroundImage: `url(${cityTheme.image})` }}
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.3 }}

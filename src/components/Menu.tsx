@@ -75,11 +75,6 @@ export const Menu = ({ onStartGame }: MenuProps) => {
       className="w-full max-w-4xl mx-auto px-4 sm:px-6 text-center"
     >
       <div className="relative py-8 sm:py-12">
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#007A4D] via-[#FDB913] to-[#DE3831]" />
-          <div className="absolute bottom-0 left-0 w-full h-2 bg-gradient-to-r from-[#007A4D] via-[#FDB913] to-[#DE3831]" />
-        </div>
-        
         <img 
           src="/lovable-uploads/cdfab539-2399-47c8-b81d-52b7d3c41117.png" 
           alt="Eish Potholes Logo" 
